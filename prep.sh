@@ -11,8 +11,6 @@ ALL_LINEZ=$(
 : "${LINEZ:=$ALL_LINEZ}"
 echo "${LINEZ}" >target/lines.txt
 
-exit 0
-
 rebuild=false
 for LINE in $LINEZ; do
 	if $rebuild; then
