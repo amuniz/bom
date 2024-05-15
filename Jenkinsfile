@@ -64,7 +64,7 @@ def lines
 stage('prep') {
   mavenEnv("prep") {
     checkout scm
-    withEnv(['SAMPLE_PLUGIN_OPTS=-Dset.changelist']) {
+    withEnv(['SAMPLE_PLUGIN_OPTS=-Dset.changelist -Dignore.dirt=true']) {
       sh '''
       mvn -v
       bash prep.sh
