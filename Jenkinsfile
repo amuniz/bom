@@ -10,15 +10,23 @@ def mavenEnv(Closure body) {
         image: ghcr.io/amuniz/java-build-agent-17:main
         resources:
           requests:
-            cpu: 1
-            memory: 256Mi
+            cpu: 2
+            memory: 2Gi
           limits:
-            cpu: 1
-            memory: 256Mi
+            cpu: 2
+            memory: 2Gi
         command:
         - sleep
         args:
         - infinity
+      - name: jnlp
+        resources:
+          requests:
+            cpu: 1
+            memory: 768Mi
+          limits:
+            cpu: 1
+            memory: 768Mi
 ''') {
     retry(count: 2, conditions: [kubernetesAgent(), nonresumable()]) {
       node(POD_LABEL) {
