@@ -96,7 +96,7 @@ lines.each {line ->
         withEnv([
           "PLUGINS=${plugins.join(',')}",
           "LINE=$line",
-          'EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1'
+          'EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=./m2repo'
         ]) {
           sh '''
           mvn -v
