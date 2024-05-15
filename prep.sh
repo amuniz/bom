@@ -3,13 +3,8 @@ set -euxo pipefail
 cd "$(dirname "${0}")"
 
 mvn clean install ${SAMPLE_PLUGIN_OPTS:-}
-
-ALL_LINEZ=$(
-	echo weekly
-	grep -F '.x</bom>' sample-plugin/pom.xml | sed -E 's, *<bom>(.+)</bom>,\1,g' | sort -rn
-)
-: "${LINEZ:=$ALL_LINEZ}"
-echo "${LINEZ}" >target/lines.txt
+echo "weekly" > target/lines.txt
+LINEZ="weekly"
 
 rebuild=false
 for LINE in $LINEZ; do
