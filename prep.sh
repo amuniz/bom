@@ -32,9 +32,7 @@ for LINE in $LINEZ; do
 			${SAMPLE_PLUGIN_OPTS:-} \
 			${PROFILE:-} \
 			-DoverrideWar="../target/megawar-${LINE}.war" \
-			-DuseUpperBounds \
-			-DcommitHashes=target/commit-hashes.txt
-		mv sample-plugin/target/commit-hashes.txt "target/commit-hashes-${LINE}.txt"
+			-DuseUpperBounds
 	fi
 done
 
