@@ -1,6 +1,6 @@
 properties([disableConcurrentBuilds(abortPrevious: true), buildDiscarder(logRotator(numToKeepStr: '7'))])
 
-def mavenEnv(Closure body) {
+def mavenEnv(String sName, Closure body) {
   podTemplate(yaml: '''
     apiVersion: v1
     kind: Pod
@@ -32,8 +32,10 @@ def mavenEnv(Closure body) {
       node(POD_LABEL) {
         container('default') {
           timeout(120) {
-            withEnv(["MAVEN_ARGS=-B -ntp -Dmaven.repo.local=${WORKSPACE_TMP}/m2repo"]) {
+            withEnv(["MAVEN_ARGS=-B -Dmaven.repo.local=./m2repo"]) {
+              readCache name: sName
               body()
+              writeCache includes: 'm2repo/**', name: sName
             }
             if (junit(testResults: '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml').failCount > 0) {
               // TODO JENKINS-27092 throw up UNSTABLE status in this case
@@ -60,7 +62,7 @@ def pluginsByRepository
 def lines
 
 stage('prep') {
-  mavenEnv {
+  mavenEnv("prep") {
     checkout scm
     withEnv(['SAMPLE_PLUGIN_OPTS=-Dset.changelist']) {
       sh '''
@@ -89,7 +91,7 @@ lines.each {line ->
   }
   pluginsByRepository.each { repository, plugins ->
     branches["pct-$repository-$line"] = {
-      mavenEnv {
+      mavenEnv("pct-$repository-$line") {
         unstash line
         withEnv([
           "PLUGINS=${plugins.join(',')}",
