@@ -32,7 +32,7 @@ def mavenEnv(String sName, Closure body) {
       node(POD_LABEL) {
         container('default') {
           timeout(120) {
-            withEnv(["MAVEN_ARGS=-B -Dmaven.repo.local=./m2repo"]) {
+            withEnv(["MAVEN_ARGS=-B -Dmaven.repo.local=${WORKSPACE}/m2repo"]) {
               readCache name: sName
               body()
               writeCache includes: 'm2repo/**', name: sName
@@ -96,7 +96,7 @@ lines.each {line ->
         withEnv([
           "PLUGINS=${plugins.join(',')}",
           "LINE=$line",
-          'EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=./m2repo'
+          "EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=${WORKSPACE}/m2repo"
         ]) {
           sh '''
           mvn -v
