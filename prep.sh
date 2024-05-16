@@ -2,7 +2,7 @@
 set -euxo pipefail
 cd "$(dirname "${0}")"
 
-mvn clean install ${SAMPLE_PLUGIN_OPTS:-}
+mvn clean install ${SAMPLE_PLUGIN_OPTS:-} ${MAVEN_ARGS:-}
 echo "weekly" > target/lines.txt
 LINEZ="weekly"
 
@@ -30,6 +30,7 @@ for LINE in $LINEZ; do
 			-f sample-plugin \
 			hpi:resolve-test-dependencies \
 			${SAMPLE_PLUGIN_OPTS:-} \
+			${MAVEN_ARGS:-} \
 			${PROFILE:-} \
 			-DoverrideWar="../target/megawar-${LINE}.war" \
 			-DuseUpperBounds
