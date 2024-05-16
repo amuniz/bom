@@ -1,4 +1,4 @@
-properties([disableConcurrentBuilds(abortPrevious: true), buildDiscarder(logRotator(numToKeepStr: '7'))])
+properties([disableConcurrentBuilds(abortPrevious: true), buildDiscarder(logRotator(numToKeepStr: '50'))])
 
 def mavenEnv(String sName, Closure body) {
   podTemplate(yaml: '''
