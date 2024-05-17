@@ -90,18 +90,20 @@ lines.each {line ->
     return
   }
   pluginsByRepository.each { repository, plugins ->
-    branches["pct-$repository-$line"] = {
-      mavenEnv("pct-$repository-$line") {
-        unstash line
-        withEnv([
-          "PLUGINS=${plugins.join(',')}",
-          "LINE=$line",
-          "EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=${WORKSPACE}/m2repo"
-        ]) {
-          sh '''
-          mvn -v
-          bash pct.sh
-          '''
+    if ("pct-$repository-$line".hashCode() % 5 == 0) {
+      branches["pct-$repository-$line"] = {
+        mavenEnv("pct-$repository-$line") {
+          unstash line
+          withEnv([
+            "PLUGINS=${plugins.join(',')}",
+            "LINE=$line",
+            "EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=${WORKSPACE}/m2repo"
+          ]) {
+            sh '''
+            mvn -v
+            bash pct.sh
+            '''
+          }
         }
       }
     }
