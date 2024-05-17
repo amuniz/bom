@@ -14,7 +14,7 @@ def mavenEnv(String sName, Closure body) {
             memory: 2Gi
           limits:
             cpu: 2
-            memory: 2Gi
+            memory: 3Gi
         command:
         - sleep
         args:
@@ -32,10 +32,14 @@ def mavenEnv(String sName, Closure body) {
       node(POD_LABEL) {
         container('default') {
           timeout(120) {
-            withEnv(["MAVEN_ARGS=-B -Dmaven.repo.local=${WORKSPACE}/m2repo"]) {
-              readCache name: sName
+            withEnv(["MAVEN_ARGS=-B -Dmaven.repo.local=${WORKSPACE_TMP}/m2repo"]) {
+              dir("${WORKSPACE_TMP}") {
+                readCache name: sName
+              }
               body()
-              writeCache includes: 'm2repo/**', name: sName
+              dir("${WORKSPACE_TMP}") {
+                writeCache includes: 'm2repo/**', name: sName
+              }
             }
             if (junit(testResults: '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml').failCount > 0) {
               // TODO JENKINS-27092 throw up UNSTABLE status in this case
@@ -97,7 +101,7 @@ lines.each {line ->
           withEnv([
             "PLUGINS=${plugins.join(',')}",
             "LINE=$line",
-            "EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=${WORKSPACE}/m2repo"
+            "EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=${WORKSPACE_TMP}/m2repo"
           ]) {
             sh '''
             mvn -v
