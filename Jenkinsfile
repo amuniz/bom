@@ -34,14 +34,10 @@ def mavenEnv(String sName, Closure body) {
       node(POD_LABEL) {
         container('default') {
           timeout(120) {
-            withEnv(["MAVEN_ARGS=-B -Dmaven.repo.local=/tmp/m2repo"]) {
-              dir("/tmp/m2repo") {
-                readCache name: sName
-              }
+            withEnv(["MAVEN_ARGS=-B -Dmaven.repo.local=${WORKSPACE}/m2repo"]) {
+              readCache name: sName
               body()
-              dir("/tmp/m2repo") {
-                writeCache includes: '**', name: sName
-              }
+              writeCache includes: 'm2repo/**', name: sName
             }
             if (junit(testResults: '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml').failCount > 0) {
               // TODO JENKINS-27092 throw up UNSTABLE status in this case
@@ -69,21 +65,23 @@ def lines
 
 stage('prep') {
   mavenEnv("prep") {
-    checkout scm
-    withEnv(['SAMPLE_PLUGIN_OPTS=-Dset.changelist -Dignore.dirt=true']) {
-      sh '''
-      mvn -v
-      bash prep.sh
-      '''
-    }
-    dir('target') {
-      def plugins = readFile('plugins.txt').split('\n')
-      pluginsByRepository = parsePlugins(plugins)
+    dir('checkout') {
+      checkout scm
+      withEnv(['SAMPLE_PLUGIN_OPTS=-Dset.changelist -Dignore.dirt=true']) {
+        sh '''
+        mvn -v
+        bash prep.sh
+        '''
+      }
+      dir('target') {
+        def plugins = readFile('plugins.txt').split('\n')
+        pluginsByRepository = parsePlugins(plugins)
 
-      lines = readFile('lines.txt').split('\n')
-    }
-    lines.each { line ->
-      stash name: line, includes: "pct.sh,excludes.txt,target/pct.jar,target/megawar-${line}.war"
+        lines = readFile('lines.txt').split('\n')
+      }
+      lines.each { line ->
+        stash name: line, includes: "pct.sh,excludes.txt,target/pct.jar,target/megawar-${line}.war"
+      }
     }
   }
 }
@@ -103,7 +101,7 @@ lines.each {line ->
           withEnv([
             "PLUGINS=${plugins.join(',')}",
             "LINE=$line",
-            "EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=/tmp/m2repo"
+            "EXTRA_MAVEN_PROPERTIES=maven.test.failure.ignore=true:surefire.rerunFailingTestsCount=1:maven.repo.local=${WORKSPACE}/m2repo"
           ]) {
             sh '''
             mvn -v
