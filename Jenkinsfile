@@ -5,6 +5,8 @@ def mavenEnv(String sName, Closure body) {
     apiVersion: v1
     kind: Pod
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
       containers:
       - name: default
         image: ghcr.io/amuniz/java-build-agent-17:main
