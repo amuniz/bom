@@ -2,14 +2,9 @@
 set -euxo pipefail
 cd "$(dirname "${0}")"
 
-mvn clean install ${SAMPLE_PLUGIN_OPTS:-}
-
-ALL_LINEZ=$(
-	echo weekly
-	grep -F '.x</bom>' sample-plugin/pom.xml | sed -E 's, *<bom>(.+)</bom>,\1,g' | sort -rn
-)
-: "${LINEZ:=$ALL_LINEZ}"
-echo "${LINEZ}" >target/lines.txt
+mvn clean install ${SAMPLE_PLUGIN_OPTS:-} ${MAVEN_ARGS:-}
+echo "weekly" > target/lines.txt
+LINEZ="weekly"
 
 rebuild=false
 for LINE in $LINEZ; do
@@ -35,12 +30,10 @@ for LINE in $LINEZ; do
 			-f sample-plugin \
 			hpi:resolve-test-dependencies \
 			${SAMPLE_PLUGIN_OPTS:-} \
+			${MAVEN_ARGS:-} \
 			${PROFILE:-} \
 			-DoverrideWar="../target/megawar-${LINE}.war" \
-			-DuseUpperBounds \
-			-Dhpi-plugin.version=3.42-rc1409.669de6d1a_866 \
-			-DcommitHashes=target/commit-hashes.txt
-		mv sample-plugin/target/commit-hashes.txt "target/commit-hashes-${LINE}.txt"
+			-DuseUpperBounds
 	fi
 done
 
