@@ -25,10 +25,10 @@ def mavenEnv(String sName, Closure body) {
         resources:
           requests:
             cpu: 1
-            memory: 768Mi
+            memory: 2Gi
           limits:
             cpu: 1
-            memory: 768Mi
+            memory: 2Gi
 ''') {
     retry(count: 2, conditions: [kubernetesAgent(), nonresumable()]) {
       node(POD_LABEL) {
