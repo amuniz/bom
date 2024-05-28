@@ -39,10 +39,7 @@ def mavenEnv(String sName, Closure body) {
               body()
               writeCache includes: 'm2repo/**', name: sName
             }
-            if (junit(testResults: '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml').failCount > 0) {
-              // TODO JENKINS-27092 throw up UNSTABLE status in this case
-              error 'Some test failures, not going to continue'
-            }
+            junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
           }
         }
       }
