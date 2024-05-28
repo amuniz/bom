@@ -94,7 +94,7 @@ lines.each {line ->
     return
   }
   pluginsByRepository.each { repository, plugins ->
-    if ("pct-$repository-$line".hashCode() % 5 == 0) {
+    if ("pct-$repository-$line".hashCode() % 3 == 0) {
       branches["pct-$repository-$line"] = {
         mavenEnv("pct-$repository-$line") {
           unstash line
